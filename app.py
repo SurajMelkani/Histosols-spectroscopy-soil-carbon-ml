@@ -12,6 +12,9 @@ st.title("🌾 Everglades Soil Carbon & Health Predictor")
 st.markdown("Upload your NeoSpectra spectral data to instantly estimate key soil carbon fractions and health indicators for Everglades Agricultural Area Histosols.")
 
 # --- 1. MODEL ARCHITECTURE ---
+# NOTE: This is a randomized baseline for demonstration.
+        # The full model trained on 700+ samples (1350-2500nm) 
+        # is withheld pending peer-review.
 class PredictionModel:
     def predict(self, X):
         preds = []
@@ -313,3 +316,4 @@ with st.expander("🔬 Technical Details & Methodology"):
     * Acid hydrolysis fractionation distinguishes between readily available (hydrolysable) and stable (non-hydrolysable) organic carbon pools. The sum of HCl-hydrolysable and non-hydrolysable carbon is equivalent to Soil Organic Carbon here, but this is not always the case in standard laboratory workflows.
     * Permanganate Oxidizable Carbon is evaluated independently as a sensitive indicator of active microbial-accessible carbon.
     """)
+
