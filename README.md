@@ -2,10 +2,8 @@
 
 **An advanced research platform for estimating soil carbon fractions and health indicators in Histosols.**
 
-You said
-**[Launch Live SpectraSoil]([https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/]**
+[Launch Live SpectraSoil](https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/)
 
-https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/
 
 ### How to Use
 1. **Prepare Your Data:** Export your spectral data from any handheld Near-Infra-Red (NIR) instrument (e.g., NeoSpectra) as a `.csv` or `.xlsx` file.
