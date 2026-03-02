@@ -1,6 +1,8 @@
 # 🔬 SpectraSoil: Soil Carbon & Health Analyzer
 
-An advanced  spectroscopy tool for estimating soil carbon fractions and health indicators in Histosols.
+**An advanced research platform for estimating soil carbon fractions and health indicators in Histosols.**
+
+[![Launch App](https://img.shields.io/badge/Launch-Live_App-1E88E5?style=for-the-badge&logo=streamlit)](https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/)
 
 ### How to Use
 1. **Prepare Your Data:** Export your spectral data from any handheld Near-Infra-Red (NIR) instrument (e.g., NeoSpectra) as a `.csv` or `.xlsx` file.
