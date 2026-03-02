@@ -12,7 +12,7 @@
 If you do not have raw spectral files available, you can download our **Reference Demo File** below to test the platform:
 * 📥 **[Download demo_soil_spectra.csv](./demo_soil_spectra.csv)** *(Contains randomized spectral signatures for 10 Histosol samples to demonstrate the pipeline).*
 
-/n
+---
 [Launch Live SpectraSoil](https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/)
 
 ### Technical Note
