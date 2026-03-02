@@ -1,6 +1,14 @@
-[BINARY MODEL PLACEHOLDER]
+[PROPRIETARY MODEL PLACEHOLDER]
 
-This location is reserved for the serialized PLSR/Machine Learning model 
-trained on the Everglades Agricultural Area (EAA) Histosol library.
+This location is reserved for the serialized Machine Learning/Deep Learning model 
+developed as part of PhD research at the University of Florida. 
 
-The calibrated .joblib file will be released following peer-review.
+MODEL SPECIFICATIONS:
+- Data Source: NeoSpectra NIR Spectroscopy
+- Spectral Range: 1350 – 2500 nm
+- Training Library: 700+ EAA Histosol samples
+- Targeted Indicators: Soil Carbon Stability and Health Parameters
+
+The calibrated .joblib file containing the final model weights and coefficients 
+will be released to this public repository following peer-review and 
+formal academic publication.
