@@ -22,7 +22,7 @@ The platform is designed specifically for organic soils (Histosols) and supports
 
 ### No Data? Use the Demo Dataset
 If you do not have raw spectral files available, you can download our **Reference Demo File** below to test the platform:
-* **[Download demo_soil_spectra.csv](./demo_soil_spectra.csv)** *(Contains randomized spectral signatures for 10 Histosol samples to demonstrate the pipeline).*
+**[Download demo_soil_spectra.csv](./demo_soil_spectra.csv)** (Contains randomized spectral signatures for 10 Histosol samples to demonstrate the pipeline).*
 
 ---
 
