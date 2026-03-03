@@ -10,7 +10,7 @@ SpectraSoil transforms near-infrared (NIR) spectral signatures into actionable s
 
 The platform is designed specifically for organic soils (Histosols) and supports rapid, non-destructive analysis to assist researchers, agronomists, and soil scientists.
 
-### How to Use
+### How to Use 
 
 1-Export spectral data from a handheld near-infrared instrument (such as NeoSpectra or similar devices) in .csv or .xlsx format.
 
