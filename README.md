@@ -12,24 +12,13 @@ The platform is designed specifically for organic soils (Histosols) and supports
 
 ### How to Use
 
-Prepare Your Data
-Export spectral data from a handheld near-infrared instrument (such as NeoSpectra or similar devices) in .csv or .xlsx format.
+1-Export spectral data from a handheld near-infrared instrument (such as NeoSpectra or similar devices) in .csv or .xlsx format.
 
-Wavelength Requirements
-The prediction models are optimized for the 1350–2500 nanometer spectral range.
-Ensure your data covers this wavelength window.
+2-The prediction models are optimized for the 1350–2500 nanometer spectral range. Ensure your data covers this wavelength window.
 
-Upload & Analyze
-Upload your file to the dashboard.
-The system will process spectral features and generate estimates for:
+3-Upload your file to the dashboard.
 
-Soil organic carbon fractions
-
-Active and stable carbon pools
-
-Soil health indicators
-
-Results are generated instantly through an integrated machine learning pipeline.
+4-Results related to soil carbon and soil health indicators will be generated instantly through an integrated machine learning pipeline.
 
 ### No Data? Use the Demo Dataset
 If you do not have raw spectral files available, you can download our **Reference Demo File** below to test the platform:
