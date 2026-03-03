@@ -1,4 +1,4 @@
-# 🔬 SpectraSoil: Soil Carbon & Health Analyzer
+# SpectraSoil: Soil Carbon & Health Analyzer
 
 **A research-driven platform for rapid estimation of soil carbon fractions and soil health indicators using near-infrared spectroscopy.**
 
