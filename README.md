@@ -4,13 +4,13 @@
 
 [Launch Live SpectraSoil](https://spectroscopy-rapid-soil-carbon-ml.streamlit.app/)
 
-🌱 Overview
+### Overview
 
 SpectraSoil transforms near-infrared (NIR) spectral signatures into actionable soil carbon and soil health metrics.
 
 The platform is designed specifically for organic soils (Histosols) and supports rapid, non-destructive analysis to assist researchers, agronomists, and soil scientists.
 
-🚀 How to Use
+### How to Use
 
 Prepare Your Data
 Export spectral data from a handheld near-infrared instrument (such as NeoSpectra or similar devices) in .csv or .xlsx format.
