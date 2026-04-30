@@ -439,91 +439,90 @@ if uploaded_file is not None:
             "was_imputed": was_imputed,
         }
 
-# --- SPECTRAL GRAPH + INFO PANEL SIDE BY SIDE ---
-st.markdown("---")
-st.markdown("### 📈 Spectral Signatures")
+        # --- SPECTRAL GRAPH + INFO PANEL SIDE BY SIDE ---
+        st.markdown("---")
+        st.markdown("### 📈 Spectral Signatures")
 
-spec_col, qc_col = st.columns([3, 1], gap="large")
+        spec_col, qc_col = st.columns([3, 1], gap="large")
 
-with spec_col:
-    fig_spec = px.line(
-        spectral_plot_df,
-        x=spectral_plot_df.index,
-        y=spectral_plot_df.columns
-    )
+        with spec_col:
+            fig_spec = px.line(
+                spectral_plot_df,
+                x=spectral_plot_df.index,
+                y=spectral_plot_df.columns
+            )
 
-    fig_spec.update_layout(
-        xaxis_title="Wavelength (nm)",
-        yaxis_title="Signal Intensity",
-        legend_title_text="Sample ID",
-        margin=dict(l=0, r=0, t=20, b=0),
-        template="plotly_white",
-        height=560
-    )
+            fig_spec.update_layout(
+                xaxis_title="Wavelength (nm)",
+                yaxis_title="Signal Intensity",
+                legend_title_text="Sample ID",
+                margin=dict(l=0, r=0, t=20, b=0),
+                template="plotly_white",
+                height=560
+            )
 
-    st.plotly_chart(fig_spec, use_container_width=True)
+            st.plotly_chart(fig_spec, use_container_width=True)
 
-with qc_col:
-    st.markdown(
-        f"""
-        <div class="qc-box">
+        with qc_col:
+            st.markdown(
+                f"""
+                <div class="qc-box">
 
-            <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
-                📘 Understanding This Graph
-            </div>
+                    <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
+                        📘 Understanding This Graph
+                    </div>
 
-            <div class="small-note" style="font-size:15px; line-height:1.5;">
-                <b>X-Axis (Wavelength nm):</b><br>
-                Spectral position after conversion and cropping.<br><br>
+                    <div class="small-note" style="font-size:15px; line-height:1.5;">
+                        <b>X-Axis (Wavelength nm):</b><br>
+                        Spectral position after conversion and cropping.<br><br>
 
-                <b>Y-Axis (Signal Intensity):</b><br>
-                Device-reported spectral signal. Depending on the instrument,
-                this may be absorbance, reflectance-derived absorbance,
-                or another processed spectral value.
-            </div>
+                        <b>Y-Axis (Signal Intensity):</b><br>
+                        Device-reported spectral signal. Depending on the instrument,
+                        this may be absorbance, reflectance-derived absorbance,
+                        or another processed spectral value.
+                    </div>
 
-            <hr style="margin:18px 0;">
+                    <hr style="margin:18px 0;">
 
-            <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
-                🔍 Spectral Data Summary
-            </div>
+                    <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
+                        🔍 Spectral Data Summary
+                    </div>
 
-            <div class="small-note" style="font-size:15px; line-height:1.5;">
-                <b>Detected spectral axis:</b><br>
-                {qc_summary['axis_type']}<br><br>
+                    <div class="small-note" style="font-size:15px; line-height:1.5;">
+                        <b>Detected spectral axis:</b><br>
+                        {qc_summary['axis_type']}<br><br>
 
-                <b>Overlapping wavelength range used:</b><br>
-                {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm<br><br>
+                        <b>Overlapping wavelength range used:</b><br>
+                        {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm<br><br>
 
-                <b>Approximate spacing after conversion:</b><br>
-                {qc_summary['median_spacing']:.2f} nm<br><br>
+                        <b>Approximate spacing after conversion:</b><br>
+                        {qc_summary['median_spacing']:.2f} nm<br><br>
 
-                <b>Prediction range used by app:</b><br>
-                {MODEL_MIN_NM}–{MODEL_MAX_NM} nm<br><br>
+                        <b>Prediction range used by app:</b><br>
+                        {MODEL_MIN_NM}–{MODEL_MAX_NM} nm<br><br>
 
-                <b>Spectral points retained:</b><br>
-                {qc_summary['n_spectral_points']}<br><br>
+                        <b>Spectral points retained:</b><br>
+                        {qc_summary['n_spectral_points']}<br><br>
 
-                <b>Processing note:</b><br>
-                Original cropped device points were retained. The app did not force
-                the data onto an exact 5-nm grid.<br><br>
+                        <b>Processing note:</b><br>
+                        Original cropped device points were retained. The app did not force
+                        the data onto an exact 5-nm grid.<br><br>
 
-                <b>Mean Signal Intensity:</b><br>
-                {qc_summary['mean_signal']:.4f}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+                        <b>Mean Signal Intensity:</b><br>
+                        {qc_summary['mean_signal']:.4f}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-    if qc_summary["dropped_count"] > 0:
-        st.warning(f"⚠️ Dropped {qc_summary['dropped_count']} scan(s) with >20% missing data.")
+            if qc_summary["dropped_count"] > 0:
+                st.warning(f"⚠️ Dropped {qc_summary['dropped_count']} scan(s) with >20% missing data.")
 
-    if qc_summary["was_imputed"]:
-        st.info("ℹ️ Minor gaps in spectral data were imputed automatically.")
+            if qc_summary["was_imputed"]:
+                st.info("ℹ️ Minor gaps in spectral data were imputed automatically.")
 
-st.markdown("---")
-
+        st.markdown("---")
         # --- PREDICT BUTTON ---
         if st.button("Predict Carbon Fractions", type="primary", use_container_width=True):
             with st.spinner("Processing spectral signatures..."):
