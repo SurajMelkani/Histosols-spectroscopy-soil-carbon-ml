@@ -35,22 +35,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-with col_logo:
-    st.markdown(
-        "<div style='font-size:72px; text-align:center; padding-top:8px;'>🌾</div>",
-        unsafe_allow_html=True
-    )
-
-with col_text:
-    st.title("Everglades Soil Carbon & Health Predictor")
-    st.markdown("""
-    This platform provides rapid, spectroscopy-based estimates of soil carbon pools
-    and soil health indicators for Everglades Agricultural Area Histosols.
-
-    Upload near-infrared spectral data, review the detected spectral range, and generate
-    estimated carbon fractions for each soil sample.
-    """)
-
 # --- PLATFORM OVERVIEW ---
 st.markdown("### What This Platform Does")
 
