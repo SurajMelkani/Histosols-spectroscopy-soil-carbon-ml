@@ -17,6 +17,7 @@ st.markdown(
     <style>
     .stApp {
         background-color: white;
+        color: #1f2933;
     }
 
     [data-testid="stHeader"] {
@@ -25,6 +26,18 @@ st.markdown(
 
     [data-testid="stSidebar"] {
         background-color: white;
+    }
+
+    [data-testid="stSidebar"] * {
+        color: #1f2933;
+    }
+
+    h1, h2, h3, h4, h5, h6, p, span, div, label {
+        color: #1f2933;
+    }
+
+    .stMarkdown, .stText, .stDataFrame {
+        color: #1f2933;
     }
     </style>
     """,
