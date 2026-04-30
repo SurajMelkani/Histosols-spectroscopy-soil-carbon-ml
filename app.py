@@ -14,7 +14,26 @@ st.set_page_config(
 )
 
 # --- HEADER / INTRO ---
-col_logo, col_text = st.columns([1, 5])
+# --- HEADER / INTRO ---
+st.markdown(
+    """
+    <div style="display:flex; align-items:flex-start; gap:18px; width:100%;">
+        <div style="font-size:72px; line-height:1; padding-top:6px;">🌾</div>
+        <div style="flex:1; text-align:left;">
+            <h1 style="margin-bottom:8px;">Everglades Soil Carbon & Health Predictor</h1>
+            <p style="font-size:18px; line-height:1.5; margin-bottom:6px;">
+                This platform provides rapid, spectroscopy-based estimates of soil carbon pools
+                and soil health indicators for Everglades Agricultural Area Histosols.
+            </p>
+            <p style="font-size:18px; line-height:1.5;">
+                Upload near-infrared spectral data, review the detected spectral range, and generate
+                estimated carbon fractions for each soil sample.
+            </p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 with col_logo:
     st.markdown(
@@ -46,15 +65,14 @@ with overview_col1:
 with overview_col2:
     st.markdown("""
     **2. Standardize Signal**  
-    The app detects whether spectral columns are wavelength or wavenumber, converts them if needed,
+    The platform detects whether spectral columns are wavelength or wavenumber, converts them if needed,
     and crops them to the model range.
     """)
 
 with overview_col3:
     st.markdown("""
     **3. Estimate Carbon Pools**  
-    The app returns estimated SOM, Total C, SOC, IC, HCl-hydrolysable C,
-    and HCl non-hydrolysable C.
+    The platform run calibrated machine learning models and returns estimated soil carbon pools.
     """)
 
 st.divider()
