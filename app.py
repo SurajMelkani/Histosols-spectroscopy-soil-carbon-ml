@@ -12,38 +12,7 @@ st.set_page_config(
     page_icon="🌾",
     layout="wide"
 )
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: white;
-        color: #1f2933;
-    }
 
-    [data-testid="stHeader"] {
-        background-color: white;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: white;
-    }
-
-    [data-testid="stSidebar"] * {
-        color: #1f2933;
-    }
-
-    h1, h2, h3, h4, h5, h6, p, span, div, label {
-        color: #1f2933;
-    }
-
-    .stMarkdown, .stText, .stDataFrame {
-        color: #1f2933;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-# --- HEADER / INTRO ---
 # --- HEADER / INTRO ---
 st.markdown(
     """
@@ -86,7 +55,7 @@ with overview_col2:
 with overview_col3:
     st.markdown("""
     **3. Estimate Carbon Pools**  
-    The platform run calibrated machine learning models and returns estimated soil carbon pools.
+    The platform runs calibrated machine learning models and returns estimated soil carbon pools.
     """)
 
 st.divider()
@@ -167,7 +136,6 @@ with st.sidebar:
     )
 
 # --- 3. HELPER FUNCTIONS ---
-
 MODEL_MIN_NM = 1350
 MODEL_MAX_NM = 2500
 
@@ -231,12 +199,9 @@ def detect_axis_type(values):
     vmin = np.nanmin(values)
     vmax = np.nanmax(values)
 
-    # Wavelength columns are usually in nm, often 350-2500 or 900-2500.
     if vmin >= 300 and vmax <= 3000:
         return "wavelength_nm"
 
-    # Wavenumber columns are usually in cm-1.
-    # NeoSpectra-style files commonly use around 3900-7400 cm-1.
     if vmin >= 3000 and vmax <= 12000:
         return "wavenumber_cm-1"
 
@@ -271,8 +236,7 @@ def standardize_spectra_to_model_range(spectral_df):
 
     Important:
     This version does NOT force the spectra onto an exact 5-nm grid.
-    It keeps the original cropped device points, which avoids reducing your
-    NeoSpectra-style data from about 237 points to 231 points.
+    It keeps the original cropped device points.
     """
     spectral_df = spectral_df.copy()
 
@@ -287,12 +251,10 @@ def standardize_spectra_to_model_range(spectral_df):
 
     wavelengths_nm, axis_type = convert_axis_to_wavelength_nm(axis_raw)
 
-    # Sort by wavelength increasing
     sort_idx = np.argsort(wavelengths_nm)
     wavelengths_nm = wavelengths_nm[sort_idx]
     spectral_values = spectral_df.iloc[:, sort_idx].values.astype(float)
 
-    # Crop to model range
     in_range = (wavelengths_nm >= MODEL_MIN_NM) & (wavelengths_nm <= MODEL_MAX_NM)
 
     if in_range.sum() < 10:
@@ -457,10 +419,7 @@ if uploaded_file is not None:
                 if was_imputed:
                     st.info("ℹ️ Note: Minor gaps in spectral data were imputed automatically.")
 
-    # Only show the plot and predict button if data is valid
     if spectral_df.shape[1] >= 10:
-
-        # --- SPECTRA PLOT ---
         st.markdown("---")
         st.markdown("### 📈 Spectral Signatures")
         st.markdown("""
@@ -494,13 +453,13 @@ if uploaded_file is not None:
             xaxis_title="Wavelength (nm)",
             yaxis_title="Signal Intensity",
             legend_title_text="Sample ID",
-            margin=dict(l=0, r=0, t=20, b=0)
+            margin=dict(l=0, r=0, t=20, b=0),
+            template="plotly_white"
         )
 
         st.plotly_chart(fig_spec, use_container_width=True)
         st.markdown("---")
 
-        # --- PREDICT BUTTON ---
         if st.button("Predict Carbon Fractions", type="primary", use_container_width=True):
             with st.spinner("Processing spectral signatures..."):
                 time.sleep(1.0)
@@ -547,7 +506,6 @@ if "predictions" in st.session_state:
         mime="text/csv"
     )
 
-    # --- 6. BAR CHART VISUALIZATIONS ---
     st.markdown("---")
     st.markdown("### 📈 Parameter Breakdown (All Samples)")
 
@@ -596,7 +554,6 @@ if "predictions" in st.session_state:
         "These derived values depend on the predicted parent carbon pools."
     )
 
-    # --- 7. PIE CHART VISUALIZATIONS ---
     st.markdown("---")
     st.markdown("### 🍩 Carbon Mass Balance (Single Sample)")
     st.markdown("Select a specific sample below to visualize its estimated carbon composition.")
@@ -623,7 +580,7 @@ if "predictions" in st.session_state:
             hole=0.4
         )
 
-        fig1.update_layout(margin=dict(t=0, b=0, l=0, r=0))
+        fig1.update_layout(margin=dict(t=0, b=0, l=0, r=0), template="plotly_white")
         st.plotly_chart(fig1, use_container_width=True)
 
     with pcol2:
@@ -639,10 +596,9 @@ if "predictions" in st.session_state:
             hole=0.4
         )
 
-        fig2.update_layout(margin=dict(t=0, b=0, l=0, r=0))
+        fig2.update_layout(margin=dict(t=0, b=0, l=0, r=0), template="plotly_white")
         st.plotly_chart(fig2, use_container_width=True)
 
-# --- 8. TECHNICAL DETAILS EXPANDER ---
 st.markdown("---")
 
 with st.expander("🔬 Technical Details & Methodology"):
