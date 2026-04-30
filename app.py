@@ -482,7 +482,7 @@ if uploaded_file is not None:
                 and did not force the data onto an exact 5-nm grid.
                 """
             )
-            st.markdown(f"**Mean Signal Intensity:**  \n{qc_summary['mean_signal']:.4f}")
+            st.markdown(f"**Mean Signal Intensity:**  {qc_summary['mean_signal']:.4f}")
 
             if qc_summary["dropped_count"] > 0:
                 st.warning(f"⚠️ Dropped {qc_summary['dropped_count']} scan(s) with >20% missing data.")
