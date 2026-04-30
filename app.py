@@ -434,7 +434,7 @@ if uploaded_file is not None:
         st.markdown("---")
         st.markdown("### 📈 Spectral Signatures")
 
-        spec_col, qc_col = st.columns([3, 1], gap="large")
+        spec_col, qc_col = st.columns([2, 1], gap="large")
 
         with spec_col:
             fig_spec = px.line(
