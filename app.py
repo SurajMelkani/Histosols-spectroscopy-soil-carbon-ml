@@ -8,7 +8,7 @@ import os
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
-    page_title="Everglades Soil Carbon Predictor",
+    page_title="SpectraSoil",
     page_icon="🌾",
     layout="wide"
 )
