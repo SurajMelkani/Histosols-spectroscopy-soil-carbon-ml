@@ -470,11 +470,11 @@ if uploaded_file is not None:
             st.divider()
 
             st.markdown("#### 🔍 Spectral Data Summary")
-            st.markdown(f"**Detected spectral axis:**  \n{qc_summary['axis_type']}")
-            st.markdown(f"**Detected wavelength range:**  \n{qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm")
-            st.markdown(f"**Approximate spacing after conversion:**  \n{qc_summary['median_spacing']:.2f} nm")
-            st.markdown(f"**Prediction range used by app:**  \n{APP_RANGE_LABEL}")
-            st.markdown(f"**Spectral points retained:**  \n{qc_summary['n_spectral_points']}")
+            st.markdown(f"**Detected spectral axis:**  {qc_summary['axis_type']}")
+            st.markdown(f"**Detected wavelength range:**  {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm")
+            st.markdown(f"**Approximate spacing after conversion:**  {qc_summary['median_spacing']:.2f} nm")
+            st.markdown(f"**Prediction range used by app:**  {APP_RANGE_LABEL}")
+            st.markdown(f"**Spectral points retained:**  {qc_summary['n_spectral_points']}")
             st.markdown(
                 """
                 **Processing note:**  
