@@ -33,7 +33,7 @@ with col_text:
     """)
 
 # --- PLATFORM OVERVIEW ---
-st.markdown("### 🌱 What This Platform Does")
+st.markdown("### What This Platform Does")
 
 overview_col1, overview_col2, overview_col3 = st.columns(3)
 
