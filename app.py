@@ -12,7 +12,24 @@ st.set_page_config(
     page_icon="🌾",
     layout="wide"
 )
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: white;
+    }
 
+    [data-testid="stHeader"] {
+        background-color: white;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 # --- HEADER / INTRO ---
 # --- HEADER / INTRO ---
 st.markdown(
