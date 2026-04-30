@@ -14,25 +14,22 @@ st.set_page_config(
 )
 
 # --- HEADER / INTRO ---
-st.markdown(
-    """
-    <div style="display:flex; align-items:flex-start; gap:18px; width:100%;">
-        <div style="font-size:72px; line-height:1; padding-top:6px;">🌾</div>
-        <div style="flex:1; text-align:left;">
-            <h1 style="margin-bottom:8px;">SpectraSoil</h1>
-            <p style="font-size:18px; line-height:1.5; margin-bottom:6px;">
-                This platform provides rapid, spectroscopy-based estimates of soil carbon pools
-                and soil health indicators for Everglades Agricultural Area Histosols.
-            </p>
-            <p style="font-size:18px; line-height:1.5;">
-                Upload near-infrared spectral data, review the detected spectral range, and generate
-                estimated carbon fractions for each soil sample.
-            </p>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+header_icon, header_text = st.columns([0.6, 8])
+
+with header_icon:
+    st.markdown("# 🌾")
+
+with header_text:
+    st.title("SpectraSoil")
+    st.markdown(
+        """
+        This platform provides rapid, spectroscopy-based estimates of soil carbon pools
+        and soil health indicators for Everglades Agricultural Area Histosols.
+
+        Upload near-infrared spectral data, review the detected spectral range, and generate
+        estimated carbon fractions for each soil sample.
+        """
+    )
 
 st.warning(
     "Prototype notice: This version demonstrates the SpectraSoil interface and workflow. "
@@ -45,27 +42,35 @@ st.markdown("### What This Platform Does")
 overview_col1, overview_col2, overview_col3 = st.columns(3)
 
 with overview_col1:
-    st.markdown("""
-    **1. Upload Spectra**  
-    Upload a CSV file containing soil spectral readings from a compatible near-infrared device.
-    """)
+    st.markdown(
+        """
+        **1. Upload Spectra**  
+        Upload a CSV file containing soil spectral readings from a compatible near-infrared device.
+        """
+    )
 
 with overview_col2:
-    st.markdown("""
-    **2. Standardize Signal**  
-    The platform detects whether spectral columns are wavelength or wavenumber, converts them if needed,
-    and crops them to the model range.
-    """)
+    st.markdown(
+        """
+        **2. Standardize Signal**  
+        The platform detects whether spectral columns are wavelength or wavenumber and converts them if needed.
+        """
+    )
 
 with overview_col3:
-    st.markdown("""
-    **3. Estimate Carbon Pools**  
-    The platform runs calibrated machine learning models and returns estimated soil carbon pools.
-    """)
+    st.markdown(
+        """
+        **3. Estimate Carbon Pools**  
+        The platform demonstrates the calibrated machine-learning workflow and returns estimated soil carbon pools.
+        """
+    )
 
 st.divider()
 
 # --- 1. MODEL ARCHITECTURE ---
+# NOTE: This is a randomized baseline for demonstration.
+# The full model trained on the final spectral feature set will be added later
+# after validation and technology-transfer review.
 class PredictionModel:
     def predict(self, X):
         preds = []
@@ -75,13 +80,22 @@ class PredictionModel:
             seed = int(hashlib.sha256(key).hexdigest()[:8], 16)
             rng = np.random.default_rng(seed)
 
+            # 1. Total Carbon and Soil Organic Carbon
             tc = rng.uniform(250.0, 450.0)
             soc = rng.uniform(0.94, 0.995) * tc
+
+            # 2. Inorganic Carbon calculated by subtraction
+            # IC = TC - SOC
             ic = max(tc - soc, 0.0)
 
+            # 3. HCl-hydrolysable Carbon estimated from SOC
             hcl_hyd = rng.uniform(0.08, 0.22) * soc
+
+            # 4. HCl non-hydrolysable Carbon calculated by subtraction
+            # HCl non-hydrolysable C = SOC - HCl hydrolysable C
             hcl_non = max(soc - hcl_hyd, 0.0)
 
+            # 5. Soil Organic Matter (%)
             som = (soc / 10.0) * 1.724
             som = float(np.clip(som, 35.0, 86.0))
 
@@ -112,14 +126,16 @@ with st.sidebar:
     st.divider()
 
     st.markdown("### 📌 Accepted Spectral Format")
-    st.markdown("""
-    The app can read numeric spectral columns stored as either:
+    st.markdown(
+        """
+        The app can read numeric spectral columns stored as either:
 
-    - **Wavenumber columns** in cm⁻¹  
-    - **Wavelength columns** in nm  
+        - **Wavenumber columns** in cm⁻¹  
+        - **Wavelength columns** in nm  
 
-    Metadata columns such as sample name, device ID, date, and user are ignored automatically.
-    """)
+        Metadata columns such as sample name, device ID, date, and user are ignored automatically.
+        """
+    )
 
     st.divider()
 
@@ -129,12 +145,15 @@ with st.sidebar:
     )
 
 # --- 3. HELPER FUNCTIONS ---
-MODEL_MIN_NM = 1350
-MODEL_MAX_NM = 2500
+APP_RANGE_LABEL = "Full detected device range"
 
 
 @st.cache_data(show_spinner=False)
 def generate_template_csv():
+    """
+    Uses demo_soil_spectra.csv from the GitHub repository if available.
+    If not available, generates a simple fallback template.
+    """
     demo_path = "demo_soil_spectra.csv"
 
     if os.path.exists(demo_path):
@@ -157,6 +176,7 @@ def generate_template_csv():
 
 
 def parse_spectral_data(df, exclude_cols=None):
+    """Robustly isolates spectral data while avoiding metadata columns."""
     exclude_cols = set(exclude_cols or [])
 
     df = df.copy()
@@ -178,6 +198,10 @@ def parse_spectral_data(df, exclude_cols=None):
 
 
 def detect_axis_type(values):
+    """
+    Detect whether spectral column names are likely wavelength (nm)
+    or wavenumber (cm-1).
+    """
     values = np.asarray(values, dtype=float)
 
     vmin = np.nanmin(values)
@@ -193,13 +217,18 @@ def detect_axis_type(values):
 
 
 def convert_axis_to_wavelength_nm(axis_values):
+    """
+    Converts spectral column positions to wavelength in nm.
+    """
     axis_values = np.asarray(axis_values, dtype=float)
     axis_type = detect_axis_type(axis_values)
 
     if axis_type == "wavelength_nm":
         wavelengths = axis_values
+
     elif axis_type == "wavenumber_cm-1":
         wavelengths = 10000000 / axis_values
+
     else:
         raise ValueError(
             "Could not detect whether spectral columns are wavelength nm or wavenumber cm-1. "
@@ -209,7 +238,16 @@ def convert_axis_to_wavelength_nm(axis_values):
     return wavelengths, axis_type
 
 
-def standardize_spectra_to_model_range(spectral_df):
+def standardize_spectra_to_device_range(spectral_df):
+    """
+    Converts spectral columns to wavelength nm and keeps the full detected device range.
+
+    Important:
+    This version does NOT crop to 2500 nm.
+    It keeps all original spectral points after metadata removal.
+    This is appropriate for NeoSpectra-style files where the original usable spectral columns are 257
+    and spacing is not exactly 5 nm.
+    """
     spectral_df = spectral_df.copy()
 
     axis_raw = pd.to_numeric(spectral_df.columns, errors="coerce")
@@ -223,29 +261,19 @@ def standardize_spectra_to_model_range(spectral_df):
 
     wavelengths_nm, axis_type = convert_axis_to_wavelength_nm(axis_raw)
 
+    # Sort by wavelength increasing
     sort_idx = np.argsort(wavelengths_nm)
     wavelengths_nm = wavelengths_nm[sort_idx]
     spectral_values = spectral_df.iloc[:, sort_idx].values.astype(float)
 
-    in_range = (wavelengths_nm >= MODEL_MIN_NM) & (wavelengths_nm <= MODEL_MAX_NM)
-
-    if in_range.sum() < 10:
-        raise ValueError(
-            f"Uploaded spectra do not sufficiently overlap the app range "
-            f"{MODEL_MIN_NM}-{MODEL_MAX_NM} nm."
-        )
-
-    wavelengths_crop = wavelengths_nm[in_range]
-    values_crop = spectral_values[:, in_range]
-
-    if len(wavelengths_crop) > 1:
-        median_spacing = np.median(np.diff(wavelengths_crop))
+    if len(wavelengths_nm) > 1:
+        median_spacing = np.median(np.diff(wavelengths_nm))
     else:
         median_spacing = np.nan
 
     standardized_df = pd.DataFrame(
-        values_crop,
-        columns=[f"{w:.2f}" for w in wavelengths_crop],
+        spectral_values,
+        columns=[f"{w:.2f}" for w in wavelengths_nm],
         index=spectral_df.index
     )
 
@@ -253,13 +281,14 @@ def standardize_spectra_to_model_range(spectral_df):
         standardized_df,
         axis_type,
         median_spacing,
-        wavelengths_crop.min(),
-        wavelengths_crop.max(),
-        len(wavelengths_crop)
+        wavelengths_nm.min(),
+        wavelengths_nm.max(),
+        len(wavelengths_nm)
     )
 
 
 def calculate_uncertainty(predictions, X_input):
+    """Generates deterministic bounds based on the spectral signature."""
     lower = np.zeros_like(predictions)
     upper = np.zeros_like(predictions)
 
@@ -348,7 +377,7 @@ if uploaded_file is not None:
             wl_min,
             wl_max,
             n_spectral_points
-        ) = standardize_spectra_to_model_range(spectral_df)
+        ) = standardize_spectra_to_device_range(spectral_df)
 
         if signal_type == "Reflectance from 0 to 1":
             spectral_df = spectral_df.clip(lower=1e-6)
@@ -368,7 +397,7 @@ if uploaded_file is not None:
             st.error("❌ Not enough numeric spectral columns detected. Please upload a valid spectral CSV.")
         else:
             st.success(
-                f"✅ Extracted and cropped {spectral_df.shape[1]} spectral data points "
+                f"✅ Extracted {spectral_df.shape[1]} spectral data points "
                 f"for {len(spectral_df)} samples."
             )
 
@@ -426,62 +455,34 @@ if uploaded_file is not None:
             st.plotly_chart(fig_spec, use_container_width=True)
 
         with qc_col:
+            st.markdown("#### 📘 Understanding This Graph")
             st.markdown(
-                f"""
-                <div style="
-                    border:1px solid #d9e6d9;
-                    border-radius:10px;
-                    padding:16px 18px;
-                    line-height:1.5;
-                ">
+                """
+                **X-Axis (Wavelength nm):**  
+                Spectral position after conversion to wavelength units.
 
-                    <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
-                        📘 Understanding This Graph
-                    </div>
-
-                    <div style="font-size:15px; line-height:1.5;">
-                        <b>X-Axis (Wavelength nm):</b><br>
-                        Spectral position after conversion and cropping.<br><br>
-
-                        <b>Y-Axis (Signal Intensity):</b><br>
-                        Device-reported spectral signal. Depending on the instrument,
-                        this may be absorbance, reflectance-derived absorbance,
-                        or another processed spectral value.
-                    </div>
-
-                    <hr style="margin:18px 0;">
-
-                    <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
-                        🔍 Spectral Data Summary
-                    </div>
-
-                    <div style="font-size:15px; line-height:1.5;">
-                        <b>Detected spectral axis:</b><br>
-                        {qc_summary['axis_type']}<br><br>
-
-                        <b>Overlapping wavelength range used:</b><br>
-                        {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm<br><br>
-
-                        <b>Approximate spacing after conversion:</b><br>
-                        {qc_summary['median_spacing']:.2f} nm<br><br>
-
-                        <b>Prediction range used by app:</b><br>
-                        {MODEL_MIN_NM}–{MODEL_MAX_NM} nm<br><br>
-
-                        <b>Spectral points retained:</b><br>
-                        {qc_summary['n_spectral_points']}<br><br>
-
-                        <b>Processing note:</b><br>
-                        Original cropped device points were retained. The app did not force
-                        the data onto an exact 5-nm grid.<br><br>
-
-                        <b>Mean Signal Intensity:</b><br>
-                        {qc_summary['mean_signal']:.4f}
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True
+                **Y-Axis (Signal Intensity):**  
+                Device-reported spectral signal. Depending on the instrument, this may be absorbance,
+                reflectance-derived absorbance, or another processed spectral value.
+                """
             )
+
+            st.divider()
+
+            st.markdown("#### 🔍 Spectral Data Summary")
+            st.markdown(f"**Detected spectral axis:**  \n{qc_summary['axis_type']}")
+            st.markdown(f"**Detected wavelength range:**  \n{qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm")
+            st.markdown(f"**Approximate spacing after conversion:**  \n{qc_summary['median_spacing']:.2f} nm")
+            st.markdown(f"**Prediction range used by app:**  \n{APP_RANGE_LABEL}")
+            st.markdown(f"**Spectral points retained:**  \n{qc_summary['n_spectral_points']}")
+            st.markdown(
+                """
+                **Processing note:**  
+                All detected spectral points were retained. The app did not crop to 2500 nm
+                and did not force the data onto an exact 5-nm grid.
+                """
+            )
+            st.markdown(f"**Mean Signal Intensity:**  \n{qc_summary['mean_signal']:.4f}")
 
             if qc_summary["dropped_count"] > 0:
                 st.warning(f"⚠️ Dropped {qc_summary['dropped_count']} scan(s) with >20% missing data.")
@@ -647,30 +648,32 @@ if "predictions" in st.session_state:
 st.markdown("---")
 
 with st.expander("🔬 Technical Details & Methodology"):
-    st.markdown("""
-    **Method Summary:**
+    st.markdown(
+        """
+        **Method Summary:**
 
-    * This platform is designed for rapid spectroscopy-based estimation of soil carbon pools
-      in Everglades Agricultural Area Histosols.
-    * Uploaded spectra are converted to wavelength units when needed and cropped to the
-      app range of **1350–2500 nm**.
-    * If the uploaded file contains wavenumber columns in cm⁻¹, they are converted to
-      wavelength using:
+        * This platform is designed for rapid spectroscopy-based estimation of soil carbon pools
+          in Everglades Agricultural Area Histosols.
+        * Uploaded spectra are converted to wavelength units when needed.
+        * The app retains the full detected device spectral range instead of cropping to 2500 nm.
+        * If the uploaded file contains wavenumber columns in cm⁻¹, they are converted to
+          wavelength using:
 
-      **Wavelength (nm) = 10,000,000 / Wavenumber (cm⁻¹)**
+          **Wavelength (nm) = 10,000,000 / Wavenumber (cm⁻¹)**
 
-    * The app keeps the original cropped device spectral points instead of forcing the data
-      onto an exact 5-nm grid.
-    * Total Carbon and Soil Organic Carbon are estimated from spectral data.
-    * Inorganic Carbon is calculated as:
+        * The app keeps the original device spectral points instead of forcing the data
+          onto an exact 5-nm grid.
+        * Total Carbon and Soil Organic Carbon are estimated from spectral data.
+        * Inorganic Carbon is calculated as:
 
-      **Inorganic Carbon = Total Carbon − Soil Organic Carbon**
+          **Inorganic Carbon = Total Carbon − Soil Organic Carbon**
 
-    * Acid hydrolysis fractionation estimates HCl-hydrolysable Carbon.
-    * HCl non-hydrolysable Carbon is calculated as:
+        * Acid hydrolysis fractionation estimates HCl-hydrolysable Carbon.
+        * HCl non-hydrolysable Carbon is calculated as:
 
-      **HCl non-hydrolysable Carbon = Soil Organic Carbon − HCl-hydrolysable Carbon**
+          **HCl non-hydrolysable Carbon = Soil Organic Carbon − HCl-hydrolysable Carbon**
 
-    * These calculations enforce carbon mass balance in the app output.
-    * Please confirm critical management decisions with certified laboratory testing.
-    """)
+        * These calculations enforce carbon mass balance in the app output.
+        * Please confirm critical management decisions with certified laboratory testing.
+        """
+    )
