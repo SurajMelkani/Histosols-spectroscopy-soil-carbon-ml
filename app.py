@@ -464,6 +464,7 @@ if uploaded_file is not None:
                 f"""
                 <div class="qc-box">
                     <div class="qc-title">🔍 Spectral Data Summary</div>
+                    <div style="height:10px;"></div>
                     <div class="small-note">
                         <b>Detected spectral axis:</b> {qc_summary['axis_type']}<br><br>
                         <b>Overlapping wavelength range used:</b> {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm<br><br>
