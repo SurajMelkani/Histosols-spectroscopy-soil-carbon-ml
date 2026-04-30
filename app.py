@@ -37,6 +37,12 @@ st.markdown(
 )
 
 # --- PLATFORM OVERVIEW ---
+st.warning(
+    "Prototype notice: This version demonstrates the SpectraSoil interface and workflow. "
+    "Final calibrated models will be added after validation and technology-transfer review."
+)
+
+# --- PLATFORM OVERVIEW ---
 st.markdown("### What This Platform Does")
 
 overview_col1, overview_col2, overview_col3 = st.columns(3)
