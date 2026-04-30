@@ -13,8 +13,6 @@ st.set_page_config(
     layout="wide"
 )
 
-
-
 # --- HEADER / INTRO ---
 st.markdown(
     """
@@ -36,7 +34,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- PLATFORM OVERVIEW ---
 st.warning(
     "Prototype notice: This version demonstrates the SpectraSoil interface and workflow. "
     "Final calibrated models will be added after validation and technology-transfer review."
@@ -69,9 +66,6 @@ with overview_col3:
 st.divider()
 
 # --- 1. MODEL ARCHITECTURE ---
-# NOTE: This is a randomized baseline for demonstration.
-# The full model trained on 700+ samples (1350-2500 nm)
-# is withheld pending peer-review.
 class PredictionModel:
     def predict(self, X):
         preds = []
@@ -81,20 +75,13 @@ class PredictionModel:
             seed = int(hashlib.sha256(key).hexdigest()[:8], 16)
             rng = np.random.default_rng(seed)
 
-            # 1. Total Carbon and Soil Organic Carbon
             tc = rng.uniform(250.0, 450.0)
             soc = rng.uniform(0.94, 0.995) * tc
-
-            # 2. Inorganic Carbon calculated by subtraction
             ic = max(tc - soc, 0.0)
 
-            # 3. HCl-hydrolysable Carbon estimated from SOC
             hcl_hyd = rng.uniform(0.08, 0.22) * soc
-
-            # 4. HCl non-hydrolysable Carbon calculated by subtraction
             hcl_non = max(soc - hcl_hyd, 0.0)
 
-            # 5. Soil Organic Matter (%)
             som = (soc / 10.0) * 1.724
             som = float(np.clip(som, 35.0, 86.0))
 
@@ -148,10 +135,6 @@ MODEL_MAX_NM = 2500
 
 @st.cache_data(show_spinner=False)
 def generate_template_csv():
-    """
-    Uses demo_soil_spectra.csv from the GitHub repository if available.
-    If not available, generates a simple fallback template.
-    """
     demo_path = "demo_soil_spectra.csv"
 
     if os.path.exists(demo_path):
@@ -174,7 +157,6 @@ def generate_template_csv():
 
 
 def parse_spectral_data(df, exclude_cols=None):
-    """Robustly isolates spectral data while avoiding metadata columns."""
     exclude_cols = set(exclude_cols or [])
 
     df = df.copy()
@@ -196,10 +178,6 @@ def parse_spectral_data(df, exclude_cols=None):
 
 
 def detect_axis_type(values):
-    """
-    Detect whether spectral column names are likely wavelength (nm)
-    or wavenumber (cm-1).
-    """
     values = np.asarray(values, dtype=float)
 
     vmin = np.nanmin(values)
@@ -215,18 +193,13 @@ def detect_axis_type(values):
 
 
 def convert_axis_to_wavelength_nm(axis_values):
-    """
-    Converts spectral column positions to wavelength in nm.
-    """
     axis_values = np.asarray(axis_values, dtype=float)
     axis_type = detect_axis_type(axis_values)
 
     if axis_type == "wavelength_nm":
         wavelengths = axis_values
-
     elif axis_type == "wavenumber_cm-1":
         wavelengths = 10000000 / axis_values
-
     else:
         raise ValueError(
             "Could not detect whether spectral columns are wavelength nm or wavenumber cm-1. "
@@ -237,13 +210,6 @@ def convert_axis_to_wavelength_nm(axis_values):
 
 
 def standardize_spectra_to_model_range(spectral_df):
-    """
-    Converts spectral columns to wavelength nm and crops to 1350-2500 nm.
-
-    Important:
-    This version does NOT force the spectra onto an exact 5-nm grid.
-    It keeps the original cropped device points.
-    """
     spectral_df = spectral_df.copy()
 
     axis_raw = pd.to_numeric(spectral_df.columns, errors="coerce")
@@ -294,7 +260,6 @@ def standardize_spectra_to_model_range(spectral_df):
 
 
 def calculate_uncertainty(predictions, X_input):
-    """Generates deterministic bounds based on the spectral signature."""
     lower = np.zeros_like(predictions)
     upper = np.zeros_like(predictions)
 
@@ -341,10 +306,6 @@ uploaded_file = st.file_uploader(
     type=["csv"],
     label_visibility="collapsed"
 )
-
-qc_summary = None
-spectral_plot_df = None
-sample_names = None
 
 if uploaded_file is not None:
     raw_df = pd.read_csv(uploaded_file)
@@ -413,6 +374,7 @@ if uploaded_file is not None:
 
     if spectral_df.shape[1] >= 10:
         sample_names = []
+
         for i in range(len(valid_indices)):
             if id_col == "Auto-generate IDs":
                 sample_names.append(f"Sample_{i + 1}")
@@ -466,13 +428,18 @@ if uploaded_file is not None:
         with qc_col:
             st.markdown(
                 f"""
-                <div class="qc-box">
+                <div style="
+                    border:1px solid #d9e6d9;
+                    border-radius:10px;
+                    padding:16px 18px;
+                    line-height:1.5;
+                ">
 
                     <div style="font-size:20px; font-weight:800; margin-bottom:12px;">
                         📘 Understanding This Graph
                     </div>
 
-                    <div class="small-note" style="font-size:15px; line-height:1.5;">
+                    <div style="font-size:15px; line-height:1.5;">
                         <b>X-Axis (Wavelength nm):</b><br>
                         Spectral position after conversion and cropping.<br><br>
 
@@ -488,7 +455,7 @@ if uploaded_file is not None:
                         🔍 Spectral Data Summary
                     </div>
 
-                    <div class="small-note" style="font-size:15px; line-height:1.5;">
+                    <div style="font-size:15px; line-height:1.5;">
                         <b>Detected spectral axis:</b><br>
                         {qc_summary['axis_type']}<br><br>
 
@@ -523,6 +490,7 @@ if uploaded_file is not None:
                 st.info("ℹ️ Minor gaps in spectral data were imputed automatically.")
 
         st.markdown("---")
+
         # --- PREDICT BUTTON ---
         if st.button("Predict Carbon Fractions", type="primary", use_container_width=True):
             with st.spinner("Processing spectral signatures..."):
@@ -651,6 +619,7 @@ if "predictions" in st.session_state:
             template="plotly_white",
             height=430
         )
+
         st.plotly_chart(fig1, use_container_width=True)
 
     with pcol2:
@@ -671,6 +640,7 @@ if "predictions" in st.session_state:
             template="plotly_white",
             height=430
         )
+
         st.plotly_chart(fig2, use_container_width=True)
 
 # --- 6. TECHNICAL DETAILS ---
