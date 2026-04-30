@@ -13,6 +13,70 @@ st.set_page_config(
     layout="wide"
 )
 
+# --- SAFE LIGHT BACKGROUND CSS ---
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #ffffff;
+    }
+
+    .block-container {
+        background-color: #ffffff;
+        color: #1f2933;
+        padding-top: 2rem;
+    }
+
+    .block-container h1,
+    .block-container h2,
+    .block-container h3,
+    .block-container h4,
+    .block-container h5,
+    .block-container h6,
+    .block-container p,
+    .block-container li,
+    .block-container label {
+        color: #1f2933;
+    }
+
+    [data-testid="stSidebar"] {
+        background-color: #f7faf7;
+    }
+
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] p,
+    [data-testid="stSidebar"] li,
+    [data-testid="stSidebar"] label {
+        color: #1f2933;
+    }
+
+    .qc-box {
+        background-color: #f8fbf8;
+        border: 1px solid #d9e6d9;
+        border-radius: 10px;
+        padding: 16px 18px;
+        margin-top: 0px;
+    }
+
+    .qc-title {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #1f2933;
+    }
+
+    .small-note {
+        font-size: 14px;
+        color: #44505c;
+        line-height: 1.5;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # --- HEADER / INTRO ---
 st.markdown(
     """
@@ -78,14 +142,12 @@ class PredictionModel:
             soc = rng.uniform(0.94, 0.995) * tc
 
             # 2. Inorganic Carbon calculated by subtraction
-            # IC = TC - SOC
             ic = max(tc - soc, 0.0)
 
             # 3. HCl-hydrolysable Carbon estimated from SOC
             hcl_hyd = rng.uniform(0.08, 0.22) * soc
 
             # 4. HCl non-hydrolysable Carbon calculated by subtraction
-            # HCl non-hydrolysable C = SOC - HCl hydrolysable C
             hcl_non = max(soc - hcl_hyd, 0.0)
 
             # 5. Soil Organic Matter (%)
@@ -336,6 +398,10 @@ uploaded_file = st.file_uploader(
     label_visibility="collapsed"
 )
 
+qc_summary = None
+spectral_plot_df = None
+sample_names = None
+
 if uploaded_file is not None:
     raw_df = pd.read_csv(uploaded_file)
 
@@ -401,36 +467,7 @@ if uploaded_file is not None:
                 f"for {len(spectral_df)} samples."
             )
 
-            with st.expander("🔍 View Data Quality Control"):
-                st.write(f"- **Detected spectral axis:** {axis_type}")
-                st.write(f"- **Overlapping wavelength range used:** {wl_min:.1f}–{wl_max:.1f} nm")
-                st.write(f"- **Approximate spacing after conversion:** {median_spacing:.2f} nm")
-                st.write(f"- **Prediction range used by app:** {MODEL_MIN_NM}–{MODEL_MAX_NM} nm")
-                st.write(f"- **Spectral points retained:** {n_spectral_points}")
-                st.write(
-                    "- **Processing note:** Original cropped device points were retained. "
-                    "The app did not force the data onto an exact 5-nm grid."
-                )
-                st.write(f"- **Mean Signal Intensity:** {spectral_df.values.mean():.4f}")
-
-                if dropped_count > 0:
-                    st.warning(f"⚠️ Dropped {dropped_count} scan(s) with >20% missing data.")
-
-                if was_imputed:
-                    st.info("ℹ️ Note: Minor gaps in spectral data were imputed automatically.")
-
     if spectral_df.shape[1] >= 10:
-        st.markdown("---")
-        st.markdown("### 📈 Spectral Signatures")
-        st.markdown("""
-        **Understanding this graph:**
-        * **X-Axis (Wavelength nm):** Spectral position after conversion and cropping.
-        * **Y-Axis (Signal Intensity):** Device-reported spectral signal. Depending on the instrument,
-          this may be absorbance, reflectance-derived absorbance, or another processed spectral value.
-        """)
-
-        plot_df = spectral_df.copy()
-
         sample_names = []
         for i in range(len(valid_indices)):
             if id_col == "Auto-generate IDs":
@@ -441,25 +478,77 @@ if uploaded_file is not None:
                     f"Sample_{i + 1}" if pd.isna(val) or str(val).strip() == "" else str(val)
                 )
 
-        plot_df.index = sample_names
-        plot_df = plot_df.T
+        spectral_plot_df = spectral_df.copy()
+        spectral_plot_df.index = sample_names
+        spectral_plot_df = spectral_plot_df.T
+        spectral_plot_df.index = pd.to_numeric(spectral_plot_df.index, errors="coerce")
+        spectral_plot_df = spectral_plot_df.sort_index()
 
-        wavelengths_nm = pd.to_numeric(plot_df.index, errors="coerce")
-        plot_df.index = wavelengths_nm
-        plot_df = plot_df.sort_index()
+        qc_summary = {
+            "axis_type": axis_type,
+            "wl_min": wl_min,
+            "wl_max": wl_max,
+            "median_spacing": median_spacing,
+            "n_spectral_points": n_spectral_points,
+            "mean_signal": float(spectral_df.values.mean()),
+            "dropped_count": dropped_count,
+            "was_imputed": was_imputed,
+        }
 
-        fig_spec = px.line(plot_df, x=plot_df.index, y=plot_df.columns)
-        fig_spec.update_layout(
-            xaxis_title="Wavelength (nm)",
-            yaxis_title="Signal Intensity",
-            legend_title_text="Sample ID",
-            margin=dict(l=0, r=0, t=20, b=0),
-            template="plotly_white"
-        )
+        # --- SPECTRAL GRAPH + QC PANEL SIDE BY SIDE ---
+        st.markdown("---")
+        st.markdown("### 📈 Spectral Signatures")
 
-        st.plotly_chart(fig_spec, use_container_width=True)
+        spec_col, qc_col = st.columns([3, 1], gap="large")
+
+        with spec_col:
+            st.markdown("""
+            **Understanding this graph:**
+            * **X-Axis (Wavelength nm):** Spectral position after conversion and cropping.  
+            * **Y-Axis (Signal Intensity):** Device-reported spectral signal. Depending on the instrument,
+              this may be absorbance, reflectance-derived absorbance, or another processed spectral value.
+            """)
+
+            fig_spec = px.line(spectral_plot_df, x=spectral_plot_df.index, y=spectral_plot_df.columns)
+            fig_spec.update_layout(
+                xaxis_title="Wavelength (nm)",
+                yaxis_title="Signal Intensity",
+                legend_title_text="Sample ID",
+                margin=dict(l=0, r=0, t=20, b=0),
+                template="plotly_white",
+                height=560
+            )
+
+            st.plotly_chart(fig_spec, use_container_width=True)
+
+        with qc_col:
+            st.markdown(
+                f"""
+                <div class="qc-box">
+                    <div class="qc-title">🔍 Spectral Data Summary</div>
+                    <div class="small-note">
+                        <b>Detected spectral axis:</b> {qc_summary['axis_type']}<br><br>
+                        <b>Overlapping wavelength range used:</b> {qc_summary['wl_min']:.1f}–{qc_summary['wl_max']:.1f} nm<br><br>
+                        <b>Approximate spacing after conversion:</b> {qc_summary['median_spacing']:.2f} nm<br><br>
+                        <b>Prediction range used by app:</b> {MODEL_MIN_NM}–{MODEL_MAX_NM} nm<br><br>
+                        <b>Spectral points retained:</b> {qc_summary['n_spectral_points']}<br><br>
+                        <b>Processing note:</b> Original cropped device points were retained. The app did not force the data onto an exact 5-nm grid.<br><br>
+                        <b>Mean Signal Intensity:</b> {qc_summary['mean_signal']:.4f}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            if qc_summary["dropped_count"] > 0:
+                st.warning(f"⚠️ Dropped {qc_summary['dropped_count']} scan(s) with >20% missing data.")
+
+            if qc_summary["was_imputed"]:
+                st.info("ℹ️ Minor gaps in spectral data were imputed automatically.")
+
         st.markdown("---")
 
+        # --- PREDICT BUTTON ---
         if st.button("Predict Carbon Fractions", type="primary", use_container_width=True):
             with st.spinner("Processing spectral signatures..."):
                 time.sleep(1.0)
@@ -506,6 +595,7 @@ if "predictions" in st.session_state:
         mime="text/csv"
     )
 
+    # --- BAR CHARTS ---
     st.markdown("---")
     st.markdown("### 📈 Parameter Breakdown (All Samples)")
 
@@ -546,7 +636,7 @@ if "predictions" in st.session_state:
                 st.markdown(f"**{clean_target}**")
 
                 chart_data_renamed = chart_data.rename(columns={raw_target: clean_target})
-                st.bar_chart(chart_data_renamed[[clean_target]], height=200)
+                st.bar_chart(chart_data_renamed[[clean_target]], height=300)
 
     st.info(
         "Calculation note: Inorganic Carbon (IC) is calculated as Total Carbon − Soil Organic Carbon. "
@@ -554,6 +644,7 @@ if "predictions" in st.session_state:
         "These derived values depend on the predicted parent carbon pools."
     )
 
+    # --- PIE CHARTS ---
     st.markdown("---")
     st.markdown("### 🍩 Carbon Mass Balance (Single Sample)")
     st.markdown("Select a specific sample below to visualize its estimated carbon composition.")
@@ -580,7 +671,11 @@ if "predictions" in st.session_state:
             hole=0.4
         )
 
-        fig1.update_layout(margin=dict(t=0, b=0, l=0, r=0), template="plotly_white")
+        fig1.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            template="plotly_white",
+            height=430
+        )
         st.plotly_chart(fig1, use_container_width=True)
 
     with pcol2:
@@ -596,9 +691,14 @@ if "predictions" in st.session_state:
             hole=0.4
         )
 
-        fig2.update_layout(margin=dict(t=0, b=0, l=0, r=0), template="plotly_white")
+        fig2.update_layout(
+            margin=dict(t=0, b=0, l=0, r=0),
+            template="plotly_white",
+            height=430
+        )
         st.plotly_chart(fig2, use_container_width=True)
 
+# --- 6. TECHNICAL DETAILS ---
 st.markdown("---")
 
 with st.expander("🔬 Technical Details & Methodology"):
