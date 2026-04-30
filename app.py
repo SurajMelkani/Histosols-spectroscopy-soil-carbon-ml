@@ -17,7 +17,7 @@ st.set_page_config(
 st.markdown(
     """
     <div style="display:flex; align-items:flex-start; gap:18px; width:100%;">
-        <div style="font-size:72px; line-height:1; padding-top:6px;"></div>
+        <div style="font-size:72px; line-height:1; padding-top:6px;">🌾</div>
         <div style="flex:1; text-align:left;">
             <h1 style="margin-bottom:8px;">SpectraSoil</h1>
             <p style="font-size:18px; line-height:1.5; margin-bottom:6px;">
