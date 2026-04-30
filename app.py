@@ -13,69 +13,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- SAFE LIGHT BACKGROUND CSS ---
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #ffffff;
-    }
 
-    .block-container {
-        background-color: #ffffff;
-        color: #1f2933;
-        padding-top: 2rem;
-    }
-
-    .block-container h1,
-    .block-container h2,
-    .block-container h3,
-    .block-container h4,
-    .block-container h5,
-    .block-container h6,
-    .block-container p,
-    .block-container li,
-    .block-container label {
-        color: #1f2933;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #f7faf7;
-    }
-
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] li,
-    [data-testid="stSidebar"] label {
-        color: #1f2933;
-    }
-
-    .qc-box {
-        background-color: #f8fbf8;
-        border: 1px solid #d9e6d9;
-        border-radius: 10px;
-        padding: 16px 18px;
-        margin-top: 0px;
-    }
-
-    .qc-title {
-        font-size: 18px;
-        font-weight: 700;
-        margin-bottom: 10px;
-        color: #1f2933;
-    }
-
-    .small-note {
-        font-size: 14px;
-        color: #44505c;
-        line-height: 1.5;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 
 # --- HEADER / INTRO ---
 st.markdown(
