@@ -12,51 +12,12 @@ st.set_page_config(
     page_icon="🌾",
     layout="wide"
 )
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background-color: #ffffff;
-    }
 
-    .block-container {
-        background-color: #ffffff;
-        color: #1f2933;
-    }
-
-    .block-container h1,
-    .block-container h2,
-    .block-container h3,
-    .block-container h4,
-    .block-container h5,
-    .block-container h6,
-    .block-container p,
-    .block-container li,
-    .block-container label {
-        color: #1f2933;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #f7faf7;
-    }
-
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3,
-    [data-testid="stSidebar"] p,
-    [data-testid="stSidebar"] li,
-    [data-testid="stSidebar"] label {
-        color: #1f2933;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
 # --- HEADER / INTRO ---
 st.markdown(
     """
     <div style="display:flex; align-items:flex-start; gap:18px; width:100%;">
-        <div style="font-size:72px; line-height:1; padding-top:6px;">🌾</div>
+        <div style="font-size:72px; line-height:1; padding-top:6px;"></div>
         <div style="flex:1; text-align:left;">
             <h1 style="margin-bottom:8px;">SpectraSoil</h1>
             <p style="font-size:18px; line-height:1.5; margin-bottom:6px;">
